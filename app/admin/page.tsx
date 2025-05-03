@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { db, auth } from '@/lib/firebase';
-import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 
@@ -104,9 +104,21 @@ export default function AdminDashboard() {
         id: doc.id,
         ...doc.data()
       })) as Course[];
-      setCourses(coursesData);
+      
+      // Remove any potential duplicates based on ID
+      const uniqueCourses = coursesData.reduce((acc, current) => {
+        const x = acc.find(item => item.id === current.id);
+        if (!x) {
+          return acc.concat([current]);
+        } else {
+          return acc;
+        }
+      }, [] as Course[]);
+      
+      setCourses(uniqueCourses);
     } catch (error) {
       console.error('Error fetching courses:', error);
+      alert('Failed to load courses. Please refresh the page.');
     }
   };
 
@@ -133,10 +145,20 @@ export default function AdminDashboard() {
 
   const handleDeleteCourse = async (id: string) => {
     try {
-      await deleteDoc(doc(db, 'courses', id));
-      fetchCourses();
+      // Delete the course from Firebase
+      const courseRef = doc(db, 'courses', id);
+      await deleteDoc(courseRef);
+      
+      // Update local state to remove the course
+      setCourses(prevCourses => prevCourses.filter(course => course.id !== id));
+      
+      // Fetch courses again to ensure we're in sync with Firebase
+      await fetchCourses();
+      
+      alert('Course deleted successfully');
     } catch (error) {
       console.error('Error deleting course:', error);
+      alert('Failed to delete course. Please try again.');
     }
   };
 
@@ -581,7 +603,6 @@ export default function AdminDashboard() {
                           ...course,
                           features: [...course.features]
                         });
-                        handleDeleteCourse(course.id);
                       }}
                       className="text-indigo-600 hover:text-indigo-800"
                       title="Edit Course"
