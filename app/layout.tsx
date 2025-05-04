@@ -3,7 +3,12 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import Script from "next/script";
-import NotificationHandler from '@/components/NotificationHandler';
+import dynamic from 'next/dynamic';
+
+const NotificationHandler = dynamic(
+  () => import('@/components/NotificationHandler'),
+  { ssr: false }
+);
 
 const inter = Inter({ subsets: ["latin"] });
 
