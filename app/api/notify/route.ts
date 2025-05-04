@@ -23,16 +23,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'No devices registered for notifications' });
     }
 
-    // Send notification to all registered devices
-    const message = {
-      notification: {
-        title,
-        body,
-      },
-      tokens,
-    };
+    // Send notification to each token individually
+    const sendPromises = tokens.map(token => 
+      admin.messaging().send({
+        token,
+        notification: {
+          title,
+          body,
+        },
+      })
+    );
 
-    await admin.messaging().sendMulticast(message);
+    await Promise.all(sendPromises);
 
     return NextResponse.json({ success: true });
   } catch (error) {

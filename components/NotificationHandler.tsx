@@ -1,24 +1,21 @@
 'use client';
 
 import { useEffect } from 'react';
-import { onMessageListener } from '@/lib/notification';
+import { requestNotificationPermission } from '@/lib/notification';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 export default function NotificationHandler() {
   useEffect(() => {
     const setupNotifications = async () => {
       try {
-        const payload = await onMessageListener();
-        if (payload) {
-          const notificationTitle = 'New Submission';
-          const notificationOptions = {
-            body: 'Someone has submitted a new ADX setup request',
-            icon: '/icon.png',
-            badge: '/badge.png',
-          };
-
-          if ('Notification' in window) {
-            new Notification(notificationTitle, notificationOptions);
-          }
+        const token = await requestNotificationPermission();
+        if (token) {
+          // Store the token in Firestore
+          await addDoc(collection(db, 'tokens'), {
+            token,
+            createdAt: new Date(),
+          });
         }
       } catch (error) {
         console.error('Error setting up notifications:', error);
