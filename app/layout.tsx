@@ -3,12 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import Script from "next/script";
-import dynamic from 'next/dynamic';
-
-const NotificationHandler = dynamic(
-  () => import('@/components/NotificationHandler'),
-  { ssr: false }
-);
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -141,9 +135,8 @@ export default function RootLayout({
         </Script>
       </head>
       <body className={inter.className}>
-        <NotificationHandler />
         <main className="min-h-screen bg-gray-50">
-          {children}
+        {children}
         </main>
         <Analytics />
       </body>

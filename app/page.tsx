@@ -95,13 +95,6 @@ export default function Home() {
     account: false
   });
   const formRef = useRef<HTMLFormElement>(null);
-  const [wordpressUrl, setWordpressUrl] = useState('');
-  const [wordpressUsername, setWordpressUsername] = useState('');
-  const [wordpressPassword, setWordpressPassword] = useState('');
-  const [whatsappNumber, setWhatsappNumber] = useState('');
-  const [networkCode, setNetworkCode] = useState('');
-  const [receiptFileName, setReceiptFileName] = useState('');
-  const [receiptFileType, setReceiptFileType] = useState('');
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -159,55 +152,54 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitStatus(null);
 
     try {
-      // First, save to Firebase
-      const docRef = await addDoc(collection(db, 'submissions'), {
-        wordpressUrl,
-        wordpressUsername,
-        wordpressPassword,
-        whatsappNumber,
-        package: selectedPackage,
-        networkCode,
-        timestamp: new Date(),
-        status: 'pending'
+      const formData = new FormData(e.currentTarget);
+      const formDataObj: Record<string, string> = {};
+      formData.forEach((value, key) => {
+        formDataObj[key] = value as string;
       });
 
-      // Send notification
-      const response = await fetch('/api/notify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: 'New Submission',
-          body: 'Someone has submitted a new ADX setup request',
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to send notification');
+      if (!receiptFile) {
+        throw new Error('Please upload a payment receipt');
       }
 
-      // Reset form
-      setWordpressUrl('');
-      setWordpressUsername('');
-      setWordpressPassword('');
-      setWhatsappNumber('');
-      setNetworkCode('');
-      setSelectedPackage('normal');
-      setReceiptFile(null);
-      setReceiptFileName('');
-      setReceiptFileType('');
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const base64File = reader.result as string;
+          const submissionData = {
+            ...formDataObj,
+            receiptFile: base64File,
+            receiptFileName: receiptFile.name,
+            receiptFileType: receiptFile.type,
+            timestamp: new Date(),
+            userId: 'anonymous',
+            status: 'pending'
+          };
 
-      alert('Submission successful! We will contact you shortly.');
+          await addDoc(collection(db, 'submissions'), submissionData);
+          setSubmitStatus({ success: true, message: 'Submission successful! We will contact you shortly.' });
+          if (formRef.current) {
+            formRef.current.reset();
+          }
+          setReceiptFile(null);
+          setSelectedPackage('');
+        } catch (error) {
+          console.error('Error submitting form:', error);
+          setSubmitStatus({ success: false, message: 'Error submitting form. Please try again.' });
+        } finally {
+          setIsSubmitting(false);
+        }
+      };
+      reader.readAsDataURL(receiptFile);
     } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('Failed to submit. Please try again.');
-    } finally {
+      console.error('Error processing form:', error);
+      setSubmitStatus({ success: false, message: error instanceof Error ? error.message : 'Error processing form. Please try again.' });
       setIsSubmitting(false);
     }
   };
@@ -222,7 +214,7 @@ export default function Home() {
   };
 
   if (isLoading) {
-    return (
+  return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <GradientSpinner />
@@ -267,8 +259,8 @@ export default function Home() {
               </h2>
               <a
                 href="https://wa.me/2349064538679"
-                target="_blank"
-                rel="noopener noreferrer"
+          target="_blank"
+          rel="noopener noreferrer"
                 className="whatsapp-button inline-flex items-center text-sm sm:text-base"
               >
                 <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -447,8 +439,6 @@ export default function Home() {
                 className="gradient-input"
                 placeholder="https://your-wordpress-site.com"
                 required
-                value={wordpressUrl}
-                onChange={(e) => setWordpressUrl(e.target.value)}
               />
             </div>
             <div>
@@ -459,8 +449,6 @@ export default function Home() {
                 className="gradient-input"
                 placeholder="Your WordPress username"
                 required
-                value={wordpressUsername}
-                onChange={(e) => setWordpressUsername(e.target.value)}
               />
             </div>
             <div>
@@ -471,8 +459,6 @@ export default function Home() {
                 className="gradient-input"
                 placeholder="Your WordPress password"
                 required
-                value={wordpressPassword}
-                onChange={(e) => setWordpressPassword(e.target.value)}
               />
             </div>
             <div>
@@ -483,8 +469,6 @@ export default function Home() {
                 className="gradient-input"
                 placeholder="Your WhatsApp number"
                 required
-                value={whatsappNumber}
-                onChange={(e) => setWhatsappNumber(e.target.value)}
               />
             </div>
             <div>
@@ -504,8 +488,6 @@ export default function Home() {
                 name="networkCode"
                 className="gradient-input"
                 placeholder="Enter network code (optional)"
-                value={networkCode}
-                onChange={(e) => setNetworkCode(e.target.value)}
               />
             </div>
             <button

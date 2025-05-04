@@ -1,8 +1,7 @@
-import { initializeApp, getApps } from 'firebase/app';
+import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth, signInAnonymously } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
-import { getMessaging } from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -11,22 +10,19 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase only if it hasn't been initialized already
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-const db = getFirestore(app);
-const auth = getAuth(app);
-const storage = getStorage(app);
-const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);
+export const auth = getAuth(app);
+export const storage = getStorage(app);
 
 // Initialize anonymous authentication
-const initializeAuth = async () => {
+export const initializeAuth = async () => {
   try {
     await signInAnonymously(auth);
   } catch (error) {
     console.error('Error initializing anonymous auth:', error);
   }
-};
-
-export { app, db, auth, storage, messaging, initializeAuth }; 
+}; 
