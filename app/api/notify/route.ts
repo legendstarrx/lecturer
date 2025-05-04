@@ -1,36 +1,34 @@
 import { NextResponse } from 'next/server';
-import admin from 'firebase-admin';
-
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  });
-}
+import { db } from '@/lib/firebase';
+import { collection, getDocs } from 'firebase/firestore';
 
 export async function POST(request: Request) {
   try {
     const { title, body } = await request.json();
 
     // Get all registered tokens from Firestore
-    const tokensSnapshot = await admin.firestore().collection('tokens').get();
+    const tokensSnapshot = await getDocs(collection(db, 'tokens'));
     const tokens = tokensSnapshot.docs.map(doc => doc.data().token);
 
     if (tokens.length === 0) {
       return NextResponse.json({ message: 'No devices registered for notifications' });
     }
 
-    // Send notification to each token individually
+    // Send notification to each token
     const sendPromises = tokens.map(token => 
-      admin.messaging().send({
-        token,
-        notification: {
-          title,
-          body,
+      fetch('https://fcm.googleapis.com/fcm/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `key=${process.env.FIREBASE_SERVER_KEY}`,
         },
+        body: JSON.stringify({
+          to: token,
+          notification: {
+            title,
+            body,
+          },
+        }),
       })
     );
 
