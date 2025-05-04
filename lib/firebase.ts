@@ -1,6 +1,7 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { getAuth, signInAnonymously } from 'firebase/auth';
+import { getStorage } from 'firebase/storage';
 import { getMessaging } from 'firebase/messaging';
 
 const firebaseConfig = {
@@ -16,6 +17,16 @@ const firebaseConfig = {
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const db = getFirestore(app);
 const auth = getAuth(app);
+const storage = getStorage(app);
 const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
 
-export { app, db, auth, messaging }; 
+// Initialize anonymous authentication
+const initializeAuth = async () => {
+  try {
+    await signInAnonymously(auth);
+  } catch (error) {
+    console.error('Error initializing anonymous auth:', error);
+  }
+};
+
+export { app, db, auth, storage, messaging, initializeAuth }; 

@@ -1,6 +1,6 @@
 'use client';
 
-import { getToken } from 'firebase/messaging';
+import { getToken, onMessage } from 'firebase/messaging';
 import { messaging } from '@/lib/firebase';
 
 export const requestNotificationPermission = async () => {
@@ -22,9 +22,15 @@ export const requestNotificationPermission = async () => {
 };
 
 export const onMessageListener = () => {
+  if (!messaging) return Promise.resolve(null);
+  
   return new Promise((resolve) => {
-    onMessage(messaging, (payload) => {
-      resolve(payload);
-    });
+    if (messaging) {
+      onMessage(messaging, (payload) => {
+        resolve(payload);
+      });
+    } else {
+      resolve(null);
+    }
   });
 }; 
