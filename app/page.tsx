@@ -168,12 +168,17 @@ export default function Home() {
         throw new Error('Please upload a payment receipt');
       }
 
+      if (!selectedPackage) {
+        throw new Error('Please select a package');
+      }
+
       const reader = new FileReader();
       reader.onload = async () => {
         try {
           const base64File = reader.result as string;
           const submissionData = {
             ...formDataObj,
+            package: selectedPackage,
             receiptFile: base64File,
             receiptFileName: receiptFile.name,
             receiptFileType: receiptFile.type,
@@ -188,7 +193,7 @@ export default function Home() {
             formRef.current.reset();
           }
           setReceiptFile(null);
-          setSelectedPackage('');
+          setSelectedPackage(null);
         } catch (error) {
           console.error('Error submitting form:', error);
           setSubmitStatus({ success: false, message: 'Error submitting form. Please try again.' });
