@@ -4,10 +4,12 @@ import { auth } from '@/lib/firebase';
 
 export async function middleware(request: NextRequest) {
   const session = request.cookies.get('session')?.value;
+  const isAdminPage = request.nextUrl.pathname.startsWith('/admin');
   
-  // If the user is not logged in and trying to access the admin page
-  if (!session && request.nextUrl.pathname.startsWith('/admin')) {
-    return NextResponse.redirect(new URL('/', request.url));
+  // If trying to access admin page without session
+  if (isAdminPage && !session) {
+    // Allow access to admin page - the client-side auth will handle the login UI
+    return NextResponse.next();
   }
 
   return NextResponse.next();

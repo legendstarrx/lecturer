@@ -67,7 +67,7 @@ export default function AdminDashboard() {
         fetchCourses();
       } else {
         setIsAuthenticated(false);
-        router.push('/');
+        // Don't redirect, just show the login form
       }
       setIsLoading(false);
     });
@@ -229,9 +229,12 @@ export default function AdminDashboard() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md w-full space-y-8 p-8 gradient-card">
-          <h2 className="text-3xl font-bold text-center">Admin Login</h2>
+          <div className="text-center">
+            <h2 className="text-3xl font-bold">Admin Login</h2>
+            <p className="mt-2 text-gray-600">Please sign in to access the admin dashboard</p>
+          </div>
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
@@ -241,6 +244,7 @@ export default function AdminDashboard() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="gradient-input"
                 required
+                placeholder="Enter your email"
               />
             </div>
             <div>
@@ -251,11 +255,12 @@ export default function AdminDashboard() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="gradient-input"
                 required
+                placeholder="Enter your password"
               />
             </div>
             {error && <div className="text-red-600 text-sm">{error}</div>}
             <button type="submit" className="gradient-button w-full">
-              Login
+              Sign In
             </button>
           </form>
         </div>
