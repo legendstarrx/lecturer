@@ -67,6 +67,7 @@ export default function AdminDashboard() {
         fetchCourses();
       } else {
         setIsAuthenticated(false);
+        router.push('/');
       }
       setIsLoading(false);
     });
@@ -94,6 +95,7 @@ export default function AdminDashboard() {
       setSubmissions(submissionsData.sort((a, b) => b.timestamp?.toDate() - a.timestamp?.toDate()));
     } catch (error) {
       console.error('Error fetching submissions:', error);
+      alert('Failed to load submissions. Please refresh the page.');
     }
   };
 
@@ -219,7 +221,7 @@ export default function AdminDashboard() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <GradientSpinner />
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-gray-600">Loading dashboard...</p>
         </div>
       </div>
     );
