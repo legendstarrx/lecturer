@@ -1,18 +1,16 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/react";
 import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "LECTURER - Professional ADX Setup & Digital Marketing Services",
-  description: "Expert ADX Setup, AdSense Optimization, and Digital Marketing Agency Services. Get professional help with Google Ad Manager, AdSense, and Blog Monetization. Boost your ad revenue with our specialized services.",
-  keywords: "ADX setup, Google Ad Manager, AdSense optimization, digital marketing agency, ad management services, blog monetization, ad revenue optimization, Facebook ads, TikTok ads, ad campaign management",
-  authors: [{ name: "LECTURER Team" }],
-  creator: "LECTURER",
-  publisher: "LECTURER",
+  title: "Lecturer - Professional ADX Setup Services",
+  description: "Get professional ADX setup services for your WordPress site. Choose from our range of packages including Normal Setup, Premium Setup, and High eCPM Setup.",
+  keywords: "ADX setup, WordPress, Google Ad Manager, ad optimization, eCPM, lazy loading, inventory optimization",
+  authors: [{ name: "Lecturer ADX" }],
+  publisher: "Lecturer ADX",
   formatDetection: {
     email: false,
     address: false,
@@ -20,19 +18,19 @@ export const metadata: Metadata = {
   },
   metadataBase: new URL('https://lecturer.vercel.app'),
   alternates: {
-    canonical: '/',
+    canonical: "https://lecturer.vercel.app",
   },
   openGraph: {
-    title: "LECTURER - Professional ADX Setup & Digital Marketing Services",
-    description: "Expert ADX Setup, AdSense Optimization, and Digital Marketing Agency Services. Get professional help with Google Ad Manager, AdSense, and Blog Monetization.",
+    title: "Lecturer - Professional ADX Setup Services",
+    description: "Get professional ADX setup services for your WordPress site. Choose from our range of packages including Normal Setup, Premium Setup, and High eCPM Setup.",
     url: 'https://lecturer.vercel.app',
-    siteName: 'LECTURER',
+    siteName: 'Lecturer ADX',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'LECTURER - Professional Digital Marketing Services',
+        alt: 'Lecturer ADX Services',
       },
     ],
     locale: 'en_US',
@@ -40,8 +38,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "LECTURER - Professional ADX Setup & Digital Marketing Services",
-    description: "Expert ADX Setup, AdSense Optimization, and Digital Marketing Agency Services. Get professional help with Google Ad Manager, AdSense, and Blog Monetization.",
+    title: "Lecturer - Professional ADX Setup Services",
+    description: "Get professional ADX setup services for your WordPress site. Choose from our range of packages including Normal Setup, Premium Setup, and High eCPM Setup.",
     images: ['/og-image.png'],
   },
   robots: {
@@ -66,13 +64,16 @@ export const metadata: Metadata = {
     ],
   },
   manifest: "/site.webmanifest",
+  verification: {
+    google: 'your-google-site-verification',
+  },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
       <head>
@@ -138,7 +139,6 @@ export default function RootLayout({
         <main className="min-h-screen bg-gray-50">
         {children}
         </main>
-        <Analytics />
       </body>
     </html>
   );
