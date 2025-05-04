@@ -1,8 +1,32 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  webpack: (config, { isServer }) => {
+    // Add a rule to handle the undici module
+    config.module.rules.push({
+      test: /node_modules\/undici/,
+      use: {
+        loader: 'ignore-loader'
+      }
+    });
+
+    // Add undici to externals
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        'undici': false
+      };
+    }
+
+    return config;
+  },
+  // Enable static optimization
   reactStrictMode: true,
+  swcMinify: true,
+  // Configure output
+  output: 'standalone',
+  // Configure images
   images: {
-    domains: ['firebasestorage.googleapis.com'],
+    domains: ['lecturer.vercel.app'],
   },
   async headers() {
     return [
